@@ -5,18 +5,21 @@ pipeline {
         SONARQUBE = 'SonarQube-10' 
     }
 
-    stages {
+ stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/hasnahatti70/ReactJS-Spring-Boot-CRUD-Full-Stack-App'
+                git branch: 'main', url: 'https://github.com/hasnahatti70/ReactJS-Spring-Boot-CRUD-Full-Stack-App'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean verify'
+                dir('springboot-backend') {
+                    sh 'mvn clean verify'
+                }
             }
         }
+
 
         stage('SonarQube Analysis') {
             steps {

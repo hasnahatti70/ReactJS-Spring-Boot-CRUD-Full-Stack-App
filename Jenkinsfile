@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube-10' 
+        SONARQUBE = 'SonarQube-10' // même nom que dans Jenkins > Manage Jenkins > Configure System
     }
 
- stages {
+    stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/hasnahatti70/ReactJS-Spring-Boot-CRUD-Full-Stack-App'
@@ -20,11 +20,12 @@ pipeline {
             }
         }
 
-
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv("${SONARQUBE}") {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=springcrud'
+                dir('springboot-backend') {
+                    withSonarQubeEnv("${SONARQUBE}") {
+                        sh 'mvn sonar:sonar -Dsonar.projectKey=springcrud'
+                    }
                 }
             }
         }

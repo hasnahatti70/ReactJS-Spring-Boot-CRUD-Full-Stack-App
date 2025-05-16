@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube-v10'
+        SONARQUBE = 'SonarQube-v10' // nom du serveur configuré dans Jenkins
     }
 
     stages {
@@ -24,7 +24,11 @@ pipeline {
             steps {
                 dir('springboot-backend') {
                     withSonarQubeEnv("${SONARQUBE}") {
-                        sh 'mvn sonar:sonar -Dsonar.projectKey=springcrud'
+                        sh '''
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=springcrud \
+                        -Dsonar.projectName=springcrud
+                        '''
                     }
                 }
             }

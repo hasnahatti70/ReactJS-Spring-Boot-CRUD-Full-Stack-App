@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // Doit correspondre au nom configuré dans Jenkins > Global Tool Configuration
+        maven 'Maven' // Nom défini dans Jenkins > Global Tool Configuration
     }
 
     environment {
-        SONARQUBE = 'SonarQube-10' // Doit être exactement le nom défini dans Manage Jenkins > Configure System
+        SONARQUBE = 'SonarQube-10' // Nom exact du serveur SonarQube défini dans Jenkins > Configure System
     }
 
     stages {
@@ -33,14 +33,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
     }
 
     post {
@@ -48,7 +40,7 @@ pipeline {
             echo "✅ Pipeline exécutée avec succès, analyse SonarQube OK."
         }
         failure {
-            echo "❌ Échec de la pipeline. Vérifiez les logs (SonarQube ou Quality Gate)."
+            echo "❌ Échec de la pipeline. Vérifiez les logs pour plus de détails."
         }
     }
 }

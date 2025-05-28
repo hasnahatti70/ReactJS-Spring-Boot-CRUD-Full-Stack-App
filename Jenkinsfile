@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // Défini dans Jenkins > Global Tool Configuration
+        maven 'Maven' // Configuré dans Jenkins > Global Tool Configuration
     }
 
     environment {
-        SONARQUBE = 'SonarQube-10' // Défini dans Jenkins > Configure System
+        SONARQUBE = 'SonarQube-10' // Nom du serveur SonarQube dans Jenkins > Configure System
     }
 
     stages {
@@ -19,15 +19,30 @@ pipeline {
         stage('Gitleaks Scan') {
             steps {
                 sh '''
-                    echo "🔍 Téléchargement de Gitleaks localement..."
-                    curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+                    echo "🔍 Détection de l'OS Jenkins..."
+                    ARCH=$(uname -m)
+                    OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+                    
+                    if [[ "$ARCH" == "x86_64" && "$OS" == "linux" ]]; then
+                        FILE_NAME="gitleaks-linux-amd64"
+                    elif [[ "$ARCH" == "aarch64" && "$OS" == "linux" ]]; then
+                        FILE_NAME="gitleaks-linux-arm64"
+                    elif [[ "$OS" == "darwin" ]]; then
+                        FILE_NAME="gitleaks-darwin-arm64"
+                    else
+                        echo "❌ OS ou architecture non supporté(e) par ce script automatique."
+                        exit 1
+                    fi
+
+                    echo "🔍 Téléchargement de Gitleaks ($FILE_NAME)..."
+                    curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/$FILE_NAME -o gitleaks
                     chmod +x gitleaks
 
                     echo "🔍 Exécution du scan Gitleaks..."
                     ./gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json || true
 
                     echo "📄 Résultats du scan Gitleaks :"
-                    cat gitleaks-report.json
+                    cat gitleaks-report.json || echo "⚠️ Aucun résultat trouvé ou fichier manquant."
                 '''
             }
         }

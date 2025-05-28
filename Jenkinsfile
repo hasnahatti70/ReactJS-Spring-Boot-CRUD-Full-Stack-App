@@ -2,17 +2,32 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // Nom défini dans Jenkins > Global Tool Configuration
+        maven 'Maven'
     }
 
     environment {
-        SONARQUBE = 'SonarQube-10' // Nom exact du serveur SonarQube défini dans Jenkins > Configure System
+        SONARQUBE = 'SonarQube-10'
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/hasnahatti70/ReactJS-Spring-Boot-CRUD-Full-Stack-App'
+            }
+        }
+
+        stage('Gitleaks Scan') {
+            steps {
+                sh '''
+                    if ! command -v gitleaks &> /dev/null; then
+                        echo "🔍 Installation de Gitleaks..."
+                        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+                        chmod +x gitleaks
+                        sudo mv gitleaks /usr/local/bin/
+                    fi
+                    echo "🔍 Exécution de Gitleaks..."
+                    gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json
+                '''
             }
         }
 
@@ -41,6 +56,9 @@ pipeline {
         }
         failure {
             echo "❌ Échec de la pipeline. Vérifiez les logs pour plus de détails."
+        }
+        always {
+            archiveArtifacts artifacts: 'gitleaks-report.json', allowEmptyArchive: true
         }
     }
 }

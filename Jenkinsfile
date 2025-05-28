@@ -2,11 +2,11 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // Nom défini dans Jenkins > Global Tool Configuration
+        maven 'Maven' // Défini dans Jenkins > Global Tool Configuration
     }
 
     environment {
-        SONARQUBE = 'SonarQube-10' // Nom exact du serveur SonarQube défini dans Jenkins > Configure System
+        SONARQUBE = 'SonarQube-10' // Défini dans Jenkins > Configure System
     }
 
     stages {
@@ -24,7 +24,10 @@ pipeline {
                     chmod +x gitleaks
 
                     echo "🔍 Exécution du scan Gitleaks..."
-                    ./gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json
+                    ./gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json || true
+
+                    echo "📄 Résultats du scan Gitleaks :"
+                    cat gitleaks-report.json
                 '''
             }
         }

@@ -19,14 +19,10 @@ pipeline {
         stage('Gitleaks Scan') {
             steps {
                 sh '''
-                    if ! command -v gitleaks &> /dev/null; then
-                        echo "🔍 Installation de Gitleaks..."
-                        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-                        chmod +x gitleaks
-                        sudo mv gitleaks /usr/local/bin/
-                    fi
-                    echo "🔍 Exécution de Gitleaks..."
-                    gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json
+                    echo "🔍 Téléchargement de Gitleaks localement..."
+                    curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+                    chmod +x gitleaks
+                    ./gitleaks detect --source=. --no-git --report-format=json --report-path=gitleaks-report.json
                 '''
             }
         }
